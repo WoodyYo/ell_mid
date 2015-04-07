@@ -1,0 +1,2 @@
+//[time, speed/250, (type)]; First time must < 20
+[[20], [23, 1], [30]];

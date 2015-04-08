@@ -1,0 +1,19 @@
+body {
+	background-color: rgb(240, 240, 240);
+}
+
+button {
+	background-color: rgb(100, 180, 255);
+	padding: 10px;
+	border: none;
+	border-radius: 10px;
+}
+button:hover {
+	background-color: rgb(80, 150, 255);
+}
+button:active {
+	background-color: rgb(50, 110, 240);
+}
+
+#score, #time{
+}

@@ -1,0 +1,26 @@
+<html>
+<head>
+<title>haha</title>
+<script src="socket.io.js"></script>    
+<script type="text/javascript" src='canvas.js'></script>
+<script type="text/javascript" src='drum.js'></script>
+<script type="text/javascript" src='asist.js'></script>
+<script type="text/javascript" src='websocket.js'></script>
+<link rel="stylesheet" href="index.css" type="text/css" media="screen" charset="utf-8">
+</head>
+<body onload='init_canvas()'>
+<canvas id='mycanvas' style='float: left'></canvas>
+<div style="font-size:50px">
+	<div>
+		<span>Score: </span>
+		<span id="score">0</span>
+	</div>
+	<div>
+		<span>Time: </span>
+		<span id="time">0:0</span>
+	</div>
+</div>
+<div style='clear:both'> </div>
+<button onclick='load_sheet("sheet.json")'>GO! </button>
+</body>
+</html>

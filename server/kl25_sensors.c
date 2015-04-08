@@ -48,7 +48,7 @@ int main (int argc, char **argv) {
 	const char *filebase = "xdata.";
 	const int num_file = 2;
 	char filename[BUFLEN];
-	
+
 	int state = 0, count = 0, buf_count = 0, buf_sum = 0;
 
 	// no port specified
@@ -121,9 +121,9 @@ int main (int argc, char **argv) {
 				acc_z = data_z;
 				theta =  acos(trunc_norm(acc_z, acc_z_abs_max)) * 180 / PI;
 
-				#ifdef DEBUG
+#ifdef DEBUG
 				//printf("X command receive: (%d %d %d %f %f) t=%d\n", data_x, data_y, data_z, theta, data_TSI, timecycle);
-				
+
 				if(buf_count == 20) //using buffer to avoid noise
 				{
 					switch(state)   //state machine
@@ -153,8 +153,8 @@ int main (int argc, char **argv) {
 					if(abs(acc_y)>1000) //set a threshold to avoid shock
 						buf_sum += acc_y + acc_x + acc_z; //sum of twenty data points
 				}
-				
-				#endif
+
+#endif
 
 				if (i != sample-1) {
 					fprintf(xdata_fp, "[%d, %d, %d],\n", acc_x, acc_y, acc_z);
@@ -167,8 +167,6 @@ int main (int argc, char **argv) {
 			// Write postscript to file
 			fprintf(xdata_fp, "]\n}\n");
 			fclose(xdata_fp);
-		} else {
-			printf("Can not open \"%s\"", filename);
 		}
 		file_index = (file_index+1) % num_file; // cycle to next file index
 		timecycle++; // time counter

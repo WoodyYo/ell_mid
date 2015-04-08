@@ -14,10 +14,12 @@ function puts(error, stdout, stderr) { sys.puts(stdout); }
 require('child_process').exec('./kl25_sensors 0 /dev/ttyACM0 '+pid, puts);
 
 var server = http.createServer(function(request, response){
+	var filename = url.parse(request.url).pathname
 	console.log('Connection');
 	response.writeHead(200, {'Content-Type': 'text/html'});
 
-	fs.readFile("index.html", function(error, data) {
+	if(filename == '/') filename = '/index.html';
+	fs.readFile("public"+filename, function(error, data) {
 		if (error){
 			response.writeHead(404);
 			response.write("opps this doesn't exist - 404");
@@ -43,11 +45,11 @@ serv_io.sockets.on('connection', function(socket) {
 
 process.on('SIGCHLD', function() {
 	serv_io.sockets.emit('beet', {'type': 1});
-	console.log('go!');
+	console.log('normal');
 });
 
 process.on('SIGHUP', function() {
 	serv_io.sockets.emit('beet', {'type': 0});
-	console.log('go!');
+	console.log('side');
 });
 

@@ -15,6 +15,7 @@
 #define DEBUG
 
 const double acc_z_abs_max = 4000.0;
+char node_pid[10];
 
 inline double trunc_norm (double val, const double abs_max) {
 	if (-abs_max>val || val>abs_max) val = val>0 ? abs_max : -abs_max;
@@ -47,6 +48,8 @@ int main (int argc, char **argv) {
 	const char *filebase = "xdata.";
 	const int num_file = 2;
 	char filename[BUFLEN];
+	
+	int state = 0, count = 0, buf_count = 0, buf_sum = 0;
 
 	// no port specified
 	if (argc == 1) {
@@ -55,6 +58,9 @@ int main (int argc, char **argv) {
 		printf("\"/dev/ttyACM0\" is a USB serial device (cdc_acm kernel module) to support serial control to modems.\n");
 		return 1;
 	}
+
+	for(i = 0; i < strlen(argv[3]); i++) node_pid[i] = argv[3][i];
+	node_pid[strlen(argv[3])] = 0;
 
 	sensor_index = argv[1][0]; // 0~15(F)
 
@@ -95,6 +101,7 @@ int main (int argc, char **argv) {
 	usleep(10000);
 
 	printf("Start Measuring...\n");
+	printf("%d\n",count);
 	while (1) {
 		sprintf(filename, "%s%d\0", filebase, file_index);
 		if (xdata_fp = fopen(filename, "w")) {
@@ -115,7 +122,38 @@ int main (int argc, char **argv) {
 				theta =  acos(trunc_norm(acc_z, acc_z_abs_max)) * 180 / PI;
 
 				#ifdef DEBUG
-				printf("X command receive: (%d %d %d %f %f) t=%d\n", data_x, data_y, data_z, theta, data_TSI, timecycle);
+				//printf("X command receive: (%d %d %d %f %f) t=%d\n", data_x, data_y, data_z, theta, data_TSI, timecycle);
+				
+				if(buf_count == 20) //using buffer to avoid noise
+				{
+					switch(state)   //state machine
+					{
+						case 0:
+							if(buf_sum>0)  //when we wave the hand, acceleration value will be positive 
+								state = 1;
+							break;
+						case 1:
+							if(buf_sum<0)  //when we stop, the acceleration value will be negative
+								state = 2;
+							break;
+						case 2:
+							count++;       //we have finished a hand waving
+							printf("%d\n",count);
+							state = 0;
+							break;
+						default:
+							state = 0;
+					}
+					buf_count = 0;
+					buf_sum = 0;
+				}		
+				else
+				{
+					buf_count++;
+					if(abs(acc_y)>1000) //set a threshold to avoid shock
+						buf_sum += acc_y + acc_x + acc_z; //sum of twenty data points
+				}
+				
 				#endif
 
 				if (i != sample-1) {
@@ -124,7 +162,7 @@ int main (int argc, char **argv) {
 					fprintf(xdata_fp, "[%d, %d, %d] \n", acc_x, acc_y, acc_z);
 				}
 
-				usleep(8000);
+				usleep(8000); //8000
 			}
 			// Write postscript to file
 			fprintf(xdata_fp, "]\n}\n");
